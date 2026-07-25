@@ -1,0 +1,101 @@
+{
+  "product": {
+    "name": "Select & Ask AI",
+    "version": "0.1.2",
+    "category": "Productivity",
+    "singlePurpose": {
+      "zh_CN": "帮助用户在网页上选中文字后，通过右键菜单把处理要求和选中内容发送到已启用的 AI 网页版。",
+      "zh_TW": "協助使用者在網頁上選取文字後，透過右鍵選單將處理要求與選取內容傳送到已啟用的 AI 網頁版。",
+      "en": "Help users select text on a webpage and send their instructions plus the selected text to enabled AI web apps via the context menu."
+    },
+    "privacyPolicyUrl": "https://select-and-ask-ai-privacy.pages.dev/",
+    "supportUrl": "https://github.com/baozheliu/select-and-ask-ai/issues",
+    "homepageUrl": "https://github.com/baozheliu/select-and-ask-ai"
+  },
+  "permissions": {
+    "contextMenus": "Provides the right-click menu entry so users can run a quick action on selected text.",
+    "storage": "Stores quick actions and settings locally, and keeps in-progress tab tasks in session storage.",
+    "activeTab": "After the user chooses a context-menu action, reads the selected text on the active tab and shows progress feedback there.",
+    "scripting": "Injects scripts after a user-initiated action to read the selection, show status feedback, and copy the full prompt if sending fails.",
+    "tabGroups": "Optionally groups tabs opened by the same ask when the user enables that setting.",
+    "hostAccess": "Runs packaged content scripts only on the official AI websites the user enables, so the extension can fill and send prompts after a context-menu action."
+  },
+  "privacy": {
+    "usesRemoteCode": false,
+    "dataTypes": [
+      "User activity",
+      "Website content",
+      "Web history"
+    ],
+    "transmittedOffDevice": true,
+    "sharedWithThirdParties": true,
+    "limitedUse": true
+  },
+  "locales": {
+    "zh_CN": {
+      "shortDescription": "选中网页文字，通过右键菜单把处理要求和选中内容一键发送到你启用的 AI 网页版，自动打开标签页并填入发送。",
+      "detailedDescription": "在任意网页选中文字后，用右键菜单一键把「处理要求 + 选中内容」发送到你在设置页启用的一个或多个 AI 网页版。\n\n主要功能\n• 自定义快捷操作：设置操作名称与处理要求，支持创建、编辑、复制、删除、启停和排序；修改后立即同步到右键菜单。\n• 多个网站并发提问：每个快捷操作可发给全部已启用的网站，或单独指定；每个网站可提问 1～5 次，每次都是独立新对话。\n• 固定的标签页行为：始终在当前窗口后台打开新标签页，不覆盖你正在看的页面；可选把同一次提问的标签页归为一组。\n• 执行状态提示：在原网页显示轻量进度；单个任务失败不影响其他任务；发送失败时保留完整问题并复制到剪贴板。\n\n隐私\n• 配置保存在本地；进行中的任务使用会话级存储，默认不长期保存选中内容。\n• 不保存任何账号密码，复用你在对应网站已有的登录状态。\n• 提问内容只在你主动操作后进入你所选的官方网站，不会上传到开发者服务器。\n\n如何使用\n1. 打开设置页，启用一个或多个 AI 网站，并确保已在对应网站登录。\n2. 在网页选中文字，右键选择本扩展下的快捷操作。\n3. 扩展在后台打开对应标签页并自动填入发送；你可继续停留在原网页查看进度。",
+      "searchTerms": [
+        "AI",
+        "选中文字",
+        "右键菜单",
+        "总结",
+        "翻译",
+        "快捷操作"
+      ]
+    },
+    "zh_TW": {
+      "shortDescription": "選取網頁文字，透過右鍵選單將處理要求與選取內容一鍵傳送到你啟用的 AI 網頁版，自動開啟分頁並填入傳送。",
+      "detailedDescription": "在任意網頁選取文字後，用右鍵選單一鍵把「處理要求 + 選取內容」傳送到你在設定頁啟用的一個或多個 AI 網頁版。\n\n主要功能\n• 自訂快捷操作：設定操作名稱與處理要求，支援建立、編輯、複製、刪除、啟停和排序；修改後立即同步到右鍵選單。\n• 多個網站並行提問：每個快捷操作可傳送給全部已啟用的網站，或單獨指定；每個網站可提問 1～5 次，每次都是獨立新對話。\n• 固定的分頁行為：一律在目前視窗背景開啟新分頁，不覆蓋你正在瀏覽的頁面；可選把同一次提問的分頁歸為一組。\n• 執行狀態提示：在原網頁顯示輕量進度；單個任務失敗不影響其他任務；傳送失敗時保留完整問題並複製到剪貼簿。\n\n隱私\n• 設定保存在本機；進行中的任務使用工作階段儲存，預設不長期保存選取內容。\n• 不保存任何帳號密碼，沿用你在對應網站既有的登入狀態。\n• 提問內容只在你主動操作後進入你所選的官方網站，不會上傳到開發者伺服器。\n\n如何使用\n1. 開啟設定頁，啟用一個或多個 AI 網站，並確認已在對應網站登入。\n2. 在網頁選取文字，右鍵選擇本擴充功能下的快捷操作。\n3. 擴充功能在背景開啟對應分頁並自動填入傳送；你可以繼續留在原網頁查看進度。",
+      "searchTerms": [
+        "AI",
+        "選取文字",
+        "右鍵選單",
+        "摘要",
+        "翻譯",
+        "快捷操作"
+      ]
+    },
+    "en": {
+      "shortDescription": "Select text on any page and send it with your instructions to your enabled AI web apps via the context menu.",
+      "detailedDescription": "Select text on any webpage and send your instructions plus that selection to one or more AI web apps from the context menu. Choose which sites to enable in Settings.\n\nKey features\n• Custom quick actions: Create, edit, duplicate, delete, enable/disable, and reorder named instructions. Changes sync to the context menu immediately.\n• Ask multiple sites at once: Send each action to all enabled sites or to specific ones. Ask each site 1-5 times; every ask opens an independent new chat.\n• Predictable tabs: Always open background tabs in the current window without replacing your current page. Optionally group tabs from the same ask.\n• On-page progress: See lightweight status feedback on the original page. One failed task does not stop the others. If sending fails, the full prompt is kept and copied to the clipboard.\n\nPrivacy\n• Preferences stay local. In-progress tasks use session storage, so selected text is not kept as long-term history by default.\n• No account passwords are stored; the extension reuses your existing website logins.\n• Prompts reach only the official websites you choose after you start an action. Nothing is uploaded to a developer server.\n\nHow to use\n1. Open Settings, enable one or more AI sites, and make sure you are signed in on those sites.\n2. Select text on a webpage, right-click, and choose a quick action.\n3. The extension opens the needed tabs in the background and fills/sends the prompt while you stay on the original page.",
+      "searchTerms": [
+        "AI",
+        "select text",
+        "context menu",
+        "summarize",
+        "translate",
+        "quick actions"
+      ]
+    }
+  },
+  "release": {
+    "changes": [
+      "Initial public release of Select & Ask AI."
+    ],
+    "reviewerTestSteps": [
+      "Load the package and open the options page.",
+      "Enable at least one supported AI website that you can sign into.",
+      "On any normal webpage, select some text, right-click, and choose a built-in quick action such as summarize.",
+      "Confirm a background tab opens to the chosen AI site and the composed prompt is filled.",
+      "Confirm progress feedback appears on the original page.",
+      "Optional: enable tab grouping in settings and repeat an ask that opens multiple tabs."
+    ],
+    "reviewNotes": "This extension does not use a developer backend or API keys. It opens official AI websites the user enables and fills prompts in the page after an explicit user context-menu action. Content scripts match only those supported hostnames listed in the manifest. Selected text is handled in session storage for in-progress tasks and is not uploaded to a developer server. Store listing text intentionally omits brand-name keyword lists."
+  },
+  "edgeGate": {
+    "forbiddenVisibleTerms": [
+      "Chrome",
+      "Chromium",
+      "Firefox",
+      "Safari",
+      "谷歌浏览器",
+      "谷歌瀏覽器"
+    ],
+    "scanResult": {
+      "userVisibleHits": 0,
+      "codeApiCompatHitsOnly": true,
+      "notes": "Built JS contains chrome.runtime / globalThis.chrome API compatibility references required by Chromium-based extension APIs. No user-facing listing, locale, privacy, or screenshot text references other browsers."
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "select-and-ask-ai",
+  "private": true,
+  "version": "0.1.2",
+  "description": "Select text on any page and ask multiple AI chat websites at once via the context menu. Manifest V3, Vite, Vue 3.",
+  "license": "MIT",
+  "author": "baozheliu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baozheliu/select-and-ask-ai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/baozheliu/select-and-ask-ai/issues"
+  },
+  "homepage": "https://github.com/baozheliu/select-and-ask-ai#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "keywords": [
+    "browser-extension",
+    "chrome-extension",
+    "manifest-v3",
+    "ai",
+    "context-menu",
+    "vite",
+    "vue",
+    "crxjs"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:chrome": "EXTENSION_TARGET=chrome vite build",
+    "build:edge": "EXTENSION_TARGET=edge vite build",
+    "build:firefox": "EXTENSION_TARGET=firefox vite build",
+    "validate:manifest": "node scripts/validate-manifest.mjs",
+    "check": "npm run validate:manifest && npm run build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.4.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.0.3"
+  }
+}

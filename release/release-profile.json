@@ -1,0 +1,73 @@
+{
+  "extension": {
+    "name": "Select & Ask AI",
+    "repository": "..",
+    "version": "0.1.2",
+    "supportedLocales": ["zh_CN", "zh_TW", "en"],
+    "privacyPolicyUrl": "https://select-and-ask-ai-privacy.pages.dev/",
+    "supportUrl": "https://github.com/baozheliu/select-and-ask-ai/issues"
+  },
+  "commands": {
+    "test": "",
+    "validateManifest": "npm run validate:manifest",
+    "buildChrome": "npm run build:chrome",
+    "buildEdge": "npm run build:edge"
+  },
+  "stores": {
+    "chrome": {
+      "itemId": "",
+      "publisherId": "d3a4265b-58ed-4216-9624-e891fc232f25",
+      "visibility": "public",
+      "autoPublishAfterApproval": true
+    },
+    "edge": {
+      "productId": "",
+      "storeId": "",
+      "visibility": "public",
+      "markets": ["all"],
+      "forbiddenVisibleTerms": ["Chrome", "Chromium", "Firefox", "Safari", "谷歌浏览器", "谷歌瀏覽器"]
+    }
+  },
+  "artifacts": {
+    "chromePackage": "release/store-assets/select-and-ask-ai-chrome-0.1.2.zip",
+    "edgePackage": "release/store-assets/select-and-ask-ai-edge-0.1.2.zip"
+  },
+  "assets": [
+    {
+      "path": "release/store-assets/icon-128.png",
+      "width": 128,
+      "height": 128,
+      "required": true
+    },
+    {
+      "path": "release/store-assets/logo-300.png",
+      "width": 300,
+      "height": 300,
+      "required": false
+    },
+    {
+      "path": "release/store-assets/screenshot-1280x800.png",
+      "width": 1280,
+      "height": 800,
+      "required": true
+    },
+    {
+      "path": "release/store-assets/screenshot-1280x800-zh.png",
+      "width": 1280,
+      "height": 800,
+      "required": false
+    },
+    {
+      "path": "release/store-assets/promo-440x280.png",
+      "width": 440,
+      "height": 280,
+      "required": true
+    },
+    {
+      "path": "release/store-assets/promo-1400x560.png",
+      "width": 1400,
+      "height": 560,
+      "required": false
+    }
+  ]
+}

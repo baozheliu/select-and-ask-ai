@@ -1,0 +1,645 @@
+/*
+ * Select & Ask AI 设计系统 — Liquid Glass
+ *
+ * 半透明模糊面板（backdrop-filter）+ 彩色玻璃背景 + 大圆角 + iOS 式控件。
+ * 自动跟随系统的浅色 / 深色外观。
+ */
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "PingFang SC",
+    "Segoe UI", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  /* 玻璃更透后加强文字对比度，保证在彩色背景上清晰可读 */
+  --lg-text: #16161a;
+  --lg-text-secondary: rgba(44, 46, 56, 0.78);
+  --lg-text-tertiary: rgba(44, 46, 56, 0.5);
+
+  /* 优雅的纯色底：Apple 风格的暖调浅灰 */
+  --lg-bg-base: #f2f2f6;
+
+  --lg-glass: rgba(255, 255, 255, 0.5);
+  --lg-glass-strong: rgba(255, 255, 255, 0.75);
+  --lg-glass-muted: rgba(255, 255, 255, 0.32);
+  --lg-glass-border: rgba(255, 255, 255, 0.8);
+  --lg-glass-inner: rgba(255, 255, 255, 0.95);
+  --lg-shadow: 0 16px 40px rgba(28, 32, 46, 0.1), 0 2px 8px rgba(28, 32, 46, 0.05);
+  --lg-shadow-small: 0 8px 24px rgba(28, 32, 46, 0.08);
+
+  --lg-tint: #0a84ff;
+  --lg-tint-strong: #0066d6;
+  --lg-tint-soft: rgba(10, 132, 255, 0.14);
+  --lg-success: #248a3d;
+  --lg-success-soft: rgba(52, 199, 89, 0.16);
+  --lg-warning: #b25000;
+  --lg-warning-soft: rgba(255, 159, 10, 0.18);
+  --lg-danger: #d70015;
+  --lg-danger-soft: rgba(255, 59, 48, 0.14);
+
+  --lg-radius-xl: 28px;
+  --lg-radius-l: 20px;
+  --lg-radius-m: 14px;
+  --lg-radius-s: 10px;
+
+  /* 低模糊 + 高饱和：清透玻璃而非磨砂 */
+  --lg-blur: blur(10px) saturate(185%);
+
+  color: var(--lg-text);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lg-text: #f7f7fa;
+    --lg-text-secondary: rgba(235, 235, 245, 0.75);
+    --lg-text-tertiary: rgba(235, 235, 245, 0.48);
+
+    --lg-bg-base: #17181c;
+
+    --lg-glass: rgba(44, 46, 56, 0.55);
+    --lg-glass-strong: rgba(56, 58, 70, 0.72);
+    --lg-glass-muted: rgba(255, 255, 255, 0.06);
+    --lg-glass-border: rgba(255, 255, 255, 0.15);
+    --lg-glass-inner: rgba(255, 255, 255, 0.16);
+    --lg-shadow: 0 16px 40px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.28);
+    --lg-shadow-small: 0 8px 24px rgba(0, 0, 0, 0.32);
+
+    --lg-tint: #409cff;
+    --lg-tint-strong: #6ab4ff;
+    --lg-tint-soft: rgba(64, 156, 255, 0.22);
+    --lg-success: #30d158;
+    --lg-success-soft: rgba(48, 209, 88, 0.18);
+    --lg-warning: #ffd60a;
+    --lg-warning-soft: rgba(255, 214, 10, 0.14);
+    --lg-danger: #ff453a;
+    --lg-danger-soft: rgba(255, 69, 58, 0.18);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  color: var(--lg-text);
+  background: var(--lg-bg-base);
+}
+
+::selection {
+  background: var(--lg-tint-soft);
+  color: var(--lg-text);
+}
+
+:focus-visible {
+  outline: 2.5px solid var(--lg-tint);
+  outline-offset: 2px;
+}
+
+/* 玻璃场景下的滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 128, 0.32);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 128, 0.5);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 纯色场景：仅保留一束极淡的顶部环境光，维持玻璃的受光方向 */
+.lg-scene {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+  overflow-x: hidden;
+}
+
+.lg-scene::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 60% at 50% -10%,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.12) 45%,
+    transparent 100%
+  );
+}
+
+@media (prefers-color-scheme: dark) {
+  .lg-scene::before {
+    background: radial-gradient(
+      120% 60% at 50% -10%,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.015) 45%,
+      transparent 100%
+    );
+  }
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+/* ---------- 玻璃面板 ---------- */
+
+.glass {
+  position: relative;
+  /* 顶部受光、底部回光的透镜曲率感 */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.16) 0%,
+      rgba(255, 255, 255, 0) 26%,
+      rgba(255, 255, 255, 0) 72%,
+      rgba(255, 255, 255, 0.07) 100%
+    ),
+    var(--lg-glass);
+  -webkit-backdrop-filter: var(--lg-blur);
+  backdrop-filter: var(--lg-blur);
+  /* Chromium：SVG 位移滤镜产生真实折射（噪声场缓慢流动），
+     不支持时自动回落到上一行的清透模糊 */
+  backdrop-filter: url(#lg-lens);
+  border: 1px solid transparent;
+  border-radius: var(--lg-radius-xl);
+  box-shadow:
+    var(--lg-shadow),
+    inset 0 1px 0 var(--lg-glass-inner),
+    inset 0 -1px 1px rgba(20, 30, 60, 0.06),
+    inset 1px 0 1px rgba(255, 255, 255, 0.18),
+    inset -1px 0 1px rgba(20, 30, 60, 0.04);
+}
+
+/* 折射边缘：光线沿玻璃边缘弯折产生的高亮 / 暗缘环，随光源缓慢转动 */
+@property --lg-edge-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 135deg;
+}
+
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  pointer-events: none;
+  background: linear-gradient(
+    var(--lg-edge-angle),
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.25) 24%,
+    rgba(140, 160, 220, 0.12) 48%,
+    rgba(255, 255, 255, 0.08) 64%,
+    rgba(255, 255, 255, 0.55) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: lg-edge-light 16s ease-in-out infinite alternate;
+}
+
+@keyframes lg-edge-light {
+  from { --lg-edge-angle: 112deg; }
+  to { --lg-edge-angle: 168deg; }
+}
+
+/* 指针高光强度（0~1），注册后可平滑过渡 */
+@property --lg-glare {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/*
+ * 镜面高光两层：
+ * 1. 跟随指针的圆形高光——光透过玻璃聚焦的物理质感
+ * 2. 缓慢扫过表面的斜向光带
+ */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle 260px at var(--lg-px, 50%) var(--lg-py, -80%),
+      rgba(255, 255, 255, calc(0.3 * var(--lg-glare))) 0%,
+      rgba(255, 255, 255, calc(0.08 * var(--lg-glare))) 42%,
+      transparent 68%
+    ),
+    linear-gradient(
+      115deg,
+      transparent 32%,
+      rgba(255, 255, 255, 0.2) 44%,
+      rgba(255, 255, 255, 0.05) 50%,
+      transparent 58%
+    );
+  background-size: 100% 100%, 280% 100%;
+  background-position: 0 0, 130% 0;
+  animation: lg-sheen 11s ease-in-out infinite;
+  transition: --lg-glare 0.45s ease;
+}
+
+@keyframes lg-sheen {
+  0%, 42% { background-position: 0 0, 130% 0; }
+  78%, 100% { background-position: 0 0, -110% 0; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass::before {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.1) 24%,
+      rgba(140, 160, 220, 0.08) 48%,
+      rgba(255, 255, 255, 0.04) 64%,
+      rgba(255, 255, 255, 0.22) 100%
+    );
+  }
+
+  .glass::after {
+    background-image:
+      radial-gradient(
+        circle 260px at var(--lg-px, 50%) var(--lg-py, -80%),
+        rgba(255, 255, 255, calc(0.16 * var(--lg-glare))) 0%,
+        rgba(255, 255, 255, calc(0.05 * var(--lg-glare))) 42%,
+        transparent 68%
+      ),
+      linear-gradient(
+        115deg,
+        transparent 32%,
+        rgba(255, 255, 255, 0.09) 44%,
+        rgba(255, 255, 255, 0.02) 50%,
+        transparent 58%
+      );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass::before,
+  .glass::after {
+    animation: none;
+  }
+}
+
+.glass-inset {
+  background: var(--lg-glass-muted);
+  border: 1px solid var(--lg-glass-border);
+  border-radius: var(--lg-radius-m);
+}
+
+.stack {
+  display: grid;
+  gap: 14px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  text-shadow: 0 1px 1.5px rgba(255, 255, 255, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  .title {
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  }
+}
+
+.muted {
+  margin: 0;
+  color: var(--lg-text-secondary);
+}
+
+/* ---------- 按钮 ---------- */
+
+/* 主按钮：与 hero 图标同源的蓝紫渐变胶囊 */
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  border-radius: 999px;
+  padding: 0 18px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0a84ff 0%, #7a5af5 70%, #bf5af2 130%);
+  box-shadow:
+    0 6px 18px rgba(94, 92, 230, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease, opacity 0.16s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 9px 24px rgba(94, 92, 230, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.button:active {
+  transform: translateY(0) scale(0.97);
+  filter: brightness(0.97);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+  filter: none;
+}
+
+.button.secondary {
+  color: var(--lg-text);
+  background: var(--lg-glass-strong);
+  -webkit-backdrop-filter: var(--lg-blur);
+  backdrop-filter: var(--lg-blur);
+  border: 1px solid var(--lg-glass-border);
+  box-shadow: var(--lg-shadow-small), inset 0 1px 0 var(--lg-glass-inner);
+}
+
+.button.secondary:hover {
+  filter: none;
+  box-shadow: var(--lg-shadow-small), inset 0 1px 0 var(--lg-glass-inner);
+}
+
+.button.small {
+  min-height: 30px;
+  padding: 0 12px;
+  font-size: 12.5px;
+}
+
+/* 图标/文字小操作按钮 */
+.chip-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--lg-text);
+  background: var(--lg-glass-muted);
+  border: 1px solid var(--lg-glass-border);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.chip-button:hover:not(:disabled) {
+  background: var(--lg-glass-strong);
+}
+
+.chip-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.chip-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.chip-button.danger {
+  color: var(--lg-danger);
+}
+
+.chip-button.icon-only {
+  width: 30px;
+  padding: 0;
+}
+
+/* ---------- 表单 ---------- */
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.field > label {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--lg-text);
+}
+
+.input,
+.select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--lg-glass-border);
+  border-radius: var(--lg-radius-m);
+  padding: 0 14px;
+  background: var(--lg-glass-strong);
+  color: var(--lg-text);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus,
+.select:focus,
+textarea.input:focus {
+  border-color: var(--lg-tint);
+  box-shadow: 0 0 0 4px var(--lg-tint-soft);
+}
+
+textarea.input {
+  padding: 10px 14px;
+  resize: vertical;
+}
+
+.input::placeholder,
+textarea.input::placeholder {
+  color: var(--lg-text-tertiary);
+}
+
+/* ---------- iOS 式开关 ---------- */
+
+.switch {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 46px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: rgba(120, 120, 128, 0.32);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: background 0.25s ease;
+  margin: 0;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+
+.switch:checked {
+  background: linear-gradient(180deg, #40d15f 0%, #2fb84f 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 80, 30, 0.2);
+}
+
+.switch:checked::after {
+  transform: translateX(18px);
+}
+
+/* ---------- 分段控制器 ---------- */
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: var(--lg-radius-s);
+  background: rgba(120, 120, 128, 0.14);
+}
+
+.segmented button {
+  min-height: 30px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--lg-text-secondary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.segmented button.active {
+  color: var(--lg-text);
+  background: var(--lg-glass-strong);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 var(--lg-glass-inner);
+}
+
+/* ---------- 步进器 ---------- */
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 999px;
+  background: rgba(120, 120, 128, 0.14);
+  padding: 2px;
+}
+
+.stepper button {
+  width: 28px;
+  height: 26px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--lg-text);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.stepper button:hover:not(:disabled) {
+  background: var(--lg-glass-strong);
+}
+
+.stepper button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.stepper .stepper-value {
+  min-width: 34px;
+  text-align: center;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 状态提示条 ---------- */
+
+.callout {
+  border-radius: var(--lg-radius-m);
+  padding: 11px 14px;
+  font-size: 13px;
+  display: grid;
+  gap: 4px;
+}
+
+.callout.success {
+  background: var(--lg-success-soft);
+  color: var(--lg-success);
+}
+
+.callout.warning {
+  background: var(--lg-warning-soft);
+  color: var(--lg-warning);
+}
+
+.callout.danger {
+  background: var(--lg-danger-soft);
+  color: var(--lg-danger);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2.5px 9px;
+  border-radius: 999px;
+  background: var(--lg-tint-soft);
+  color: var(--lg-tint);
+}
+
+.badge.danger {
+  background: var(--lg-danger-soft);
+  color: var(--lg-danger);
+}
+
+.badge.neutral {
+  background: rgba(120, 120, 128, 0.14);
+  color: var(--lg-text-secondary);
+}

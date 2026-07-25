@@ -1,0 +1,21 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0A84FF"/>
+      <stop offset="1" stop-color="#BF5AF2"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="0.5" cy="-0.15" r="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.08"/>
+      <stop offset="0.75" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="squircle">
+      <rect width="128" height="128" rx="38"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#squircle)">
+    <rect width="128" height="128" fill="url(#bg)"/>
+    <rect width="128" height="128" fill="url(#shine)"/>
+  </g>
+  <path d="M64 26 C67.6 51.4 76.6 60.4 102 64 C76.6 67.6 67.6 76.6 64 102 C60.4 76.6 51.4 67.6 26 64 C51.4 60.4 60.4 51.4 64 26 Z" fill="#FFFFFF"/>
+</svg>
